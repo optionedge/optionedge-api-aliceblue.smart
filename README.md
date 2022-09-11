@@ -124,14 +124,22 @@ Refer the sample file `DevTest.cs` within `OptionEdge.API.AliceBlue.Smart.Sample
 
 ## Symbol Generator
 ```csharp
-    var symbolGenerator = _aliceBlueSmart.CreateSymbolGenerator();
-
-    // Get NIFTY current week's put ATM strike symbol
+    // Get NIFTY current week's PUT ATM strike symbol
     var niftyCurrentWeekATMPut = symbolGenerator.GetSymbol(
         "NIFTY", 
         allExpiries[0], 
         ALICE_BLUE_API_OPTION_TYPE.PE, 
         symbolGenerator.GetATMStrike(17343, 50));
+
+    // Get BANKNIFTY next week's Call ATM strike symbol
+    var bankniftyNextWeekATMCall = symbolGenerator.GetSymbol(
+        "BANKNIFTY",
+        allExpiries[1],
+        ALICE_BLUE_API_OPTION_TYPE.CE,
+        symbolGenerator.GetATMStrike(39856, 100));
+
+    Console.WriteLine(niftyCurrentWeekATMPut);
+    Console.WriteLine(bankniftyNextWeekATMCall);
 ```
 
 Above code generates `NIFTY2291517350PE` & `BANKNIFTY2292239900CE` symbols.
