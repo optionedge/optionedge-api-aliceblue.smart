@@ -93,6 +93,18 @@ Refer the sample file `DevTest.cs` within `OptionEdge.API.AliceBlue.Smart.Sample
     }
 ```
 
+## Search Contracts by Symbol or Token
+```csharp
+    // Load all contracts for NFO in memory
+    _aliceBlueSmart.LoadContracts(Constants.EXCHANGE_NFO);
+
+    // get contract by instrument token. 
+    var contract1 = _aliceBlueSmart.GetInstrument(Constants.EXCHANGE_NFO, 51942);
+
+    // get contract by trading symbol
+    var contract2 = _aliceBlueSmart.GetInstrument(Constants.EXCHANGE_NFO, "symbol");
+```
+
 ## Expiry Calculator
 ```csharp
     var expiryCalculator = _aliceBlueSmart.CreateExpiryCalculator(DateTime.Now);
