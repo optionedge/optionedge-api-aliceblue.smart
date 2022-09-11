@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.Playwright;
 
 namespace OptionEdge.API.AliceBlue.Smart
 {
@@ -13,6 +15,7 @@ namespace OptionEdge.API.AliceBlue.Smart
         Dictionary<string, Dictionary<int, Contract>> _masterContractsTokenToInstrumentMap = new Dictionary<string, Dictionary<int, Contract>>();
 
         bool _enableLogging = false;
+        string _antWebUrl = "https://a3.aliceblueonline.com/";
 
         public AliceBlueSmart(string userId, string apiKey, string baseUrl = null, string websocketUrl = null, bool enableLogging = false, Action<string> onAccessTokenGenerated = null, Func<string> cachedAccessTokenProvider = null) : base(userId, apiKey, baseUrl, websocketUrl, enableLogging, onAccessTokenGenerated, cachedAccessTokenProvider)
         {
@@ -45,7 +48,9 @@ namespace OptionEdge.API.AliceBlue.Smart
             if (!_masterContracts.ContainsKey(exchange))
                 throw new Exception($"Contracts not available for exchange {exchange}.");
 
-            return _masterContractsSymbolToInstrumentMap[exchange][tradingSymbol];
+            return 
+                _masterContractsSymbolToInstrumentMap[exchange].ContainsKey(tradingSymbol) ?
+                _masterContractsSymbolToInstrumentMap[exchange][tradingSymbol] : null;
         }
 
         public Contract GetInstrument(string exchange, int instrumentToken)
@@ -56,8 +61,43 @@ namespace OptionEdge.API.AliceBlue.Smart
             return _masterContractsTokenToInstrumentMap[exchange][instrumentToken];
         }
 
-        public bool Login()
+        public async Task<bool> Login(string userName, string password, string mpin, bool showBrowser = true)
         {
+            try
+            {
+                var playwright = await Playwright.CreateAsync();
+                var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                {
+                    Headless = showBrowser == true ? false : true,
+                    Devtools = false
+                });
+
+                var page = await browser.NewPageAsync();
+                await page.GotoAsync(_antWebUrl);
+
+                await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/div/input").FillAsync(userName);
+                await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/button/span").ClickAsync();
+
+                // MPIN
+                // Currently in chromium, it always opens MPIN, once user id is entered
+                // Unable to verify the password & YOB login flow
+                await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/div/div[1]/span[1]/input").FillAsync(mpin);
+                await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/button").ClickAsync();
+
+                await page.Locator("//*[@id=\"app\"]/div/header/div/div/div[2]/div/div[1]/div[1]").ClickAsync();
+
+                await browser.CloseAsync();
+
+                playwright.Dispose();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (_enableLogging)
+                    Utils.LogMessage($"Error while login to broker account. {ex.ToString()}");
+            }
+
             return false;
         }
 
@@ -79,6 +119,16 @@ namespace OptionEdge.API.AliceBlue.Smart
 
             _masterContractsSymbolToInstrumentMap.Add(exchange, symbolToInstrumentMap);
             _masterContractsTokenToInstrumentMap.Add(exchange, tokenToInstrumentMap);
+        }
+
+        public ExpiryCalculator CreateExpiryCalculator(DateTime today)
+        {
+            return new ExpiryCalculator(today, null);
+        }
+
+        public SymbolGenerator CreateSymbolGenerator()
+        {
+            return new SymbolGenerator();
         }
     }
 }

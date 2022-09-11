@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32407.343
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptionEdge.API.AliceBlue.Smart", "OptionEdge.API.AliceBlue.Smart\OptionEdge.API.AliceBlue.Smart.csproj", "{6D211F7B-0D99-49A3-99FC-33E547970325}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OptionEdge.API.AliceBlue.Smart.Samples", "OptionEdge.API.AliceBlue.Smart.Samples\OptionEdge.API.AliceBlue.Smart.Samples.csproj", "{283C6F6A-CF6B-424D-B787-13C694B4BE23}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6D211F7B-0D99-49A3-99FC-33E547970325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D211F7B-0D99-49A3-99FC-33E547970325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D211F7B-0D99-49A3-99FC-33E547970325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D211F7B-0D99-49A3-99FC-33E547970325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{283C6F6A-CF6B-424D-B787-13C694B4BE23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{283C6F6A-CF6B-424D-B787-13C694B4BE23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{283C6F6A-CF6B-424D-B787-13C694B4BE23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{283C6F6A-CF6B-424D-B787-13C694B4BE23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B0FC957C-BB18-43F5-B2B9-2CCF648A7BEB}
+	EndGlobalSection
+EndGlobal

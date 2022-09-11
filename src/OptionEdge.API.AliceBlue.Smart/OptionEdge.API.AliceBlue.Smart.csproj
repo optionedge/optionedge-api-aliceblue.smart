@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Playwright" Version="1.25.0" />
     <PackageReference Include="OptionEdge.API.AliceBlue" Version="1.0.0.5-beta" />
   </ItemGroup>
 
