@@ -2,7 +2,26 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<AssemblyVersion>1.0.0.5</AssemblyVersion>
+	<Version>$(VersionPrefix)</Version>
+	<VersionPrefix>1.0.0.5</VersionPrefix>
+	<VersionSuffix>beta</VersionSuffix>
+	<Company>OptionEdge</Company>
+	<Authors>proftheta</Authors>
+	<Description>Smart Extensions for AliceBlue .Net Client Library</Description>
+	<Copyright>OptionEdge</Copyright>
+	<PackageProjectUrl>https://github.com/proftheta/optionedge-api-aliceblue.smart</PackageProjectUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+	<RepositoryUrl>https://github.com/proftheta/optionedge-api-aliceblue.smart</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Playwright" Version="1.25.0" />

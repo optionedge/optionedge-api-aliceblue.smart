@@ -41,6 +41,16 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
                 ALICE_BLUE_API_OPTION_TYPE.PE, 
                 symbolGenerator.GetATMStrike(17343, 50));
 
+
+            var bankniftyNextWeekATMCall = symbolGenerator.GetSymbol(
+                "BANKNIFTY",
+                allExpiries[1],
+                ALICE_BLUE_API_OPTION_TYPE.CE,
+                symbolGenerator.GetATMStrike(39856, 100));
+
+            Console.WriteLine(niftyCurrentWeekATMPut);
+            Console.WriteLine(bankniftyNextWeekATMCall);
+
             // Test connectivity
             var accountDetails = _aliceBlueSmart.GetAccountDetails();
 
@@ -63,7 +73,7 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
                 mpin: _mpin,
                 showBrowser: false).Result;
 
-            if (!isLoginSuccess)
+            if (isLoginSuccess)
                 Console.WriteLine("Logged in to ANT Web successfully.");
             else
             {
