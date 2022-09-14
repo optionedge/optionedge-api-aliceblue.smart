@@ -10,6 +10,7 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
         string? _apiKey = Environment.GetEnvironmentVariable("ALICE_BLUE_API_KEY");
 
         string? _password = Environment.GetEnvironmentVariable("ALICE_BLUE_PASSWORD");
+        string? _yob = Environment.GetEnvironmentVariable("ALICE_BLUE_YOB");
         string? _mpin = Environment.GetEnvironmentVariable("ALICE_BLUE_MPIN");
 
         string _tokenFileName = "token.txt";
@@ -24,8 +25,37 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
                     File.WriteAllText(_tokenFileName, token);
                 }, cachedAccessTokenProvider: () =>
                 {
-                    return File.Exists(_tokenFileName) ? File.ReadAllText(_tokenFileName) : "";                }
+                    return File.Exists(_tokenFileName) ? File.ReadAllText(_tokenFileName) : "";                
+                }
             );
+
+            //Login to ANT Web
+            // set showBrowser as true to see the browser UI else false.No browser instance will be created
+            //Chromium browser needs to be installed at the binary location
+            // .\playwright.ps1 install chromium
+            var isLoginSuccess = _aliceBlueSmart.Login(
+                userName: _userId,
+                password: _password,
+                yob: _yob,
+                mpin: _mpin,
+                showBrowser: true).Result;
+
+            if (isLoginSuccess)
+                Console.WriteLine("Logged in to ANT Web successfully.");
+            else
+            {
+                Console.WriteLine("login to ANT Web failed.");
+            }
+
+            // Create Ticker for live feeds
+            var ticker = _aliceBlueSmart.CreateTicker();
+            ticker.OnConnect += Ticker_OnConnect;
+
+            // Subscribe for live feeds by instrument token 
+            ticker.Subscribe(Constants.EXCHANGE_NFO, Constants.TICK_MODE_QUOTE, new int[] { 2222 });
+
+            // UnSubscribe from live feeds
+            ticker.UnSubscribe(Constants.EXCHANGE_NFO, new int[] { 2222 });
 
             var expiryCalculator = _aliceBlueSmart.CreateExpiryCalculator(DateTime.Now);
 
@@ -36,9 +66,9 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
 
             // Get NIFTY current week's put ATM strike symbol
             var niftyCurrentWeekATMPut = symbolGenerator.GetSymbol(
-                "NIFTY", 
-                allExpiries[0], 
-                ALICE_BLUE_API_OPTION_TYPE.PE, 
+                "NIFTY",
+                allExpiries[0],
+                ALICE_BLUE_API_OPTION_TYPE.PE,
                 symbolGenerator.GetATMStrike(17343, 50));
 
 
@@ -62,23 +92,14 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
 
             // get contract by trading symbol
             var contract2 = _aliceBlueSmart.GetInstrument(Constants.EXCHANGE_NFO, "symbol");
+            
+            // Get Last Traded Price by Trading Symbol or Instrument Token
+            var ltp = _aliceBlueSmart.GetLTP(Constants.EXCHANGE_NFO, "BANKNIFTY22SEP40800CE");
+        }
 
-            // Login to ANT Web 
-            // set showBrowser as true to see the browser UI else false. No browser instance will be created
-            // Chromium browser needs to be installed at the binary location
-            //  .\playwright.ps1 install chromium
-            var isLoginSuccess = _aliceBlueSmart.Login(
-                userName: _userId,
-                password: _password,
-                mpin: _mpin,
-                showBrowser: false).Result;
-
-            if (isLoginSuccess)
-                Console.WriteLine("Logged in to ANT Web successfully.");
-            else
-            {
-                Console.WriteLine("login to ANT Web failed.");
-            }
+        private void Ticker_OnConnect()
+        {
+            Console.WriteLine("Ticker Connected");
         }
     }
 }

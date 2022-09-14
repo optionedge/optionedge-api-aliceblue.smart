@@ -6,6 +6,7 @@ This is an extension library to AliceBlue .Net Client library. This smart extens
 - Search contracts/instruments by instrument symbol or instrument token.
 - Expiry calculator: get weekly/monthly expiry dates
 - Symbol Generator: generate trading symbol based on expiry, strike and option type
+- Get Last Traded Price  by trading symbol or instrument token
 - Many more features coming soon
 
 ## Refer to this Youtube video for AliceBlue .Net Client library usage & integration guide  [ProfTheta - Your Guide to Options](https://www.youtube.com/watch?v=ncjVPPeSQ88)
@@ -24,8 +25,7 @@ This is an extension library to AliceBlue .Net Client library. This smart extens
 ## Install Nuget Packages
 
 ```
-Install-Package OptionEdge.API.AliceBlue -Version 1.0.0.5-beta
-Install-Package OptionEdge.API.AliceBlue.Smart -Version 1.0.0.5-beta
+Install-Package OptionEdge.API.AliceBlue.Smart -Version 1.0.0.9-beta
 ```
 
 ## Sample project
@@ -35,7 +35,7 @@ Refer the sample file `DevTest.cs` within `OptionEdge.API.AliceBlue.Smart.Sample
 
 ## Import namespaces
 ```csharp
-    using OOptionEdge.API.AliceBlue.Smart;
+    using OptionEdge.API.AliceBlue.Smart;
     using OptionEdge.API.AliceBlue.Records;
 ```
 
@@ -48,6 +48,7 @@ Refer the sample file `DevTest.cs` within `OptionEdge.API.AliceBlue.Smart.Sample
         string? _apiKey = Environment.GetEnvironmentVariable("ALICE_BLUE_API_KEY");
 
         string? _password = Environment.GetEnvironmentVariable("ALICE_BLUE_PASSWORD");
+        string? _yob = Environment.GetEnvironmentVariable("ALICE_BLUE_YOB");
         string? _mpin = Environment.GetEnvironmentVariable("ALICE_BLUE_MPIN");
 
         string _tokenFileName = "token.txt";
@@ -93,6 +94,22 @@ Refer the sample file `DevTest.cs` within `OptionEdge.API.AliceBlue.Smart.Sample
     }
 ```
 
+# Create Ticker and subscribe for live feeds
+```csharp
+    // Create Ticker for live feeds
+    var ticker = _aliceBlueSmart.CreateTicker();
+    ticker.OnClose += ticker_OnClose;
+    ticker.OnConnect += ticker_OnConnect;
+    ticker.OnTick += ticker_OnTick;
+    ticker.OnReady += ticker_OnReady;
+
+    // Subscribe for live feeds by instrument token 
+    ticker.Subscribe(Constants.EXCHANGE_NFO, Constants.TICK_MODE_QUOTE, new int[] { 2222 });
+
+    // UnSubscribe from live feeds
+    ticker.UnSubscribe(Constants.EXCHANGE_NFO, new int[] { 2222 });
+```
+
 ## Search Contracts by Symbol or Token
 ```csharp
     // Load all contracts for NFO in memory
@@ -103,6 +120,12 @@ Refer the sample file `DevTest.cs` within `OptionEdge.API.AliceBlue.Smart.Sample
 
     // get contract by trading symbol
     var contract2 = _aliceBlueSmart.GetInstrument(Constants.EXCHANGE_NFO, "symbol");
+```
+
+## Get LTP (Last Traded Price)
+```csharp
+    // Get Last Traded Price by Trading Symbol or Instrument Token
+    var ltp = _aliceBlueSmart.GetLTP(Constants.EXCHANGE_NFO, "BANKNIFTY22SEP40800CE");
 ```
 
 ## Expiry Calculator

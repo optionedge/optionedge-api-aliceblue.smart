@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Playwright;
+using OptionEdge.API.AliceBlue.Smart.Records;
 
 namespace OptionEdge.API.AliceBlue.Smart
 {
@@ -13,9 +14,14 @@ namespace OptionEdge.API.AliceBlue.Smart
         Dictionary<string, IList<Contract>> _masterContracts = new Dictionary<string, IList<Contract>>();
         Dictionary<string, Dictionary<string, Contract>> _masterContractsSymbolToInstrumentMap = new Dictionary<string, Dictionary<string, Contract>>();
         Dictionary<string, Dictionary<int, Contract>> _masterContractsTokenToInstrumentMap = new Dictionary<string, Dictionary<int, Contract>>();
+       
 
         bool _enableLogging = false;
         string _antWebUrl = "https://a3.aliceblueonline.com/";
+
+        Ticker _ticker;
+
+        bool _isLoggedIn = false;
 
         public AliceBlueSmart(string userId, string apiKey, string baseUrl = null, string websocketUrl = null, bool enableLogging = false, Action<string> onAccessTokenGenerated = null, Func<string> cachedAccessTokenProvider = null) : base(userId, apiKey, baseUrl, websocketUrl, enableLogging, onAccessTokenGenerated, cachedAccessTokenProvider)
         {
@@ -46,7 +52,7 @@ namespace OptionEdge.API.AliceBlue.Smart
         public Contract GetInstrument(string exchange, string tradingSymbol)
         {
             if (!_masterContracts.ContainsKey(exchange))
-                throw new Exception($"Contracts not available for exchange {exchange}.");
+                throw new Exception($"Contracts not available for exchange {exchange}. Please make sure that contracts are loaded. Have you executed 'LoadContracts'?");
 
             return 
                 _masterContractsSymbolToInstrumentMap[exchange].ContainsKey(tradingSymbol) ?
@@ -61,8 +67,122 @@ namespace OptionEdge.API.AliceBlue.Smart
             return _masterContractsTokenToInstrumentMap[exchange][instrumentToken];
         }
 
-        public async Task<bool> Login(string userName, string password, string mpin, bool showBrowser = true)
+        Dictionary<int, LTPResult> _tickStore = new Dictionary<int, LTPResult>();
+        public LTPResult GetLTP(string exchange, string tradingSymbol)
         {
+            var instrumentToken = GetInstrument(exchange, tradingSymbol).InstrumentToken;
+
+            return GetLTP(exchange, instrumentToken);
+        }
+
+        public LTPResult GetLTP(string exchange, int instrumentToken)
+        {
+            if (_tickStore.ContainsKey(instrumentToken))
+                return _tickStore[instrumentToken];
+
+            var oiResult = base.GetOpenInterest(exchange, new int[] { instrumentToken });
+            if (oiResult == null) return null;
+            if (oiResult.Length == 0) return null;
+
+            var openInterest = oiResult[0];
+
+            if (!_pendingSubscriptions.ContainsKey(instrumentToken))
+                _pendingSubscriptions.Add(instrumentToken, new SubscriptionToken
+                {
+                    Exchange = exchange,
+                    Token = instrumentToken
+                });
+
+            var ltpResult = new LTPResult
+            {
+                InstrumentToken = instrumentToken,
+                LastTradedPrice = openInterest.Ltp,
+                BuyPrice1 = openInterest.BestBuyPrice,
+                SellPrice1 = openInterest.BestSellPrice,
+                BuyQty1 = int.TryParse(openInterest.BestBuySize, out int bestBuyQty) ? bestBuyQty : 0,
+                SellQty1 = int.TryParse(openInterest.BestSellSize, out int bestSellQty) ? bestSellQty : 0
+            };
+            _tickStore.Add(instrumentToken, ltpResult);
+
+            if (_ticker != null)
+                _ticker.Subscribe(exchange, Constants.TICK_MODE_QUOTE, new int[] { instrumentToken });
+            else
+                SetupTicker();
+
+            return ltpResult;
+        }
+
+        Dictionary<int, SubscriptionToken> _pendingSubscriptions = new Dictionary<int, SubscriptionToken>();
+        private async void SetupTicker()
+        {
+            if (_enableLogging)
+                Utils.LogMessage("Setting up ticker...");
+
+            if (_ticker != null)
+            {
+                if (!_ticker.IsConnected)
+                {
+                    _ticker.Connect();
+                    return;
+                }
+            }
+
+            _ticker = CreateTicker();
+
+            _ticker.OnClose += _ticker_OnClose;
+            _ticker.OnReady += _ticker_OnReady;
+            _ticker.OnTick += _ticker_OnTick;
+
+            base.SetShouldUnSubscribeHandler((instrumentToken) =>
+            {
+                if (_tickStore.ContainsKey(instrumentToken))
+                    return false;
+                else
+                    return true;
+            });
+
+            _ticker.Connect();
+        }
+
+        private void _ticker_OnReady()
+        {
+            if (_enableLogging)
+                Utils.LogMessage($"Subscribing to {_pendingSubscriptions.Count} token on Ticker On Ready.");
+
+            _ticker.Subscribe(Constants.TICK_MODE_QUOTE, _pendingSubscriptions.Values.ToArray());
+            ClearPendingSubscriptions();
+        }
+
+        private void _ticker_OnTick(Tick TickData)
+        {
+            if (_tickStore.ContainsKey(TickData.Token.Value))
+            {
+                var ltpResult = _tickStore[TickData.Token.Value];
+                ltpResult.LastTradedPrice = TickData.LastTradedPrice.Value;
+                ltpResult.BuyPrice1 = TickData.BuyPrice1;
+                ltpResult.SellPrice1 = TickData.SellPrice1;
+                ltpResult.BuyQty1 = TickData.BuyQty1;
+                ltpResult.SellQty1= TickData.SellQty1;
+            }
+        }
+
+        private void _ticker_OnClose()
+        {
+            ClearPendingSubscriptions();
+            _tickStore.Clear();
+        }
+
+        object _pendingSubscriptionsLock = new object();
+        private void ClearPendingSubscriptions()
+        {
+            lock (_pendingSubscriptionsLock)
+                _pendingSubscriptions.Clear();
+        }
+
+        public async Task<bool> Login(string userName, string password, string yob, string mpin, bool showBrowser = true)
+        {
+            if (_isLoggedIn) return false;
+
             try
             {
                 var playwright = await Playwright.CreateAsync();
@@ -78,11 +198,29 @@ namespace OptionEdge.API.AliceBlue.Smart
                 await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/div/input").FillAsync(userName);
                 await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/button/span").ClickAsync();
 
-                // MPIN
-                // Currently in chromium, it always opens MPIN, once user id is entered
-                // Unable to verify the password & YOB login flow
-                await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/div/div[1]/span[1]/input").FillAsync(mpin);
-                await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/button").ClickAsync();
+                var passwordInput = page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/div/div[1]/span[1]/input");
+                string prompt = await passwordInput.GetAttributeAsync("placeholder");
+
+                if (prompt.Trim() == "Enter your M-Pin")
+                {
+                    // MPIN FLOW
+                    var mpinInput = page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/div/div[1]/span[1]/input");
+                    if (mpinInput != null)
+                    {
+                        await mpinInput.FillAsync(mpin);
+                        await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/button").ClickAsync();
+                    }
+                }
+                else
+                {
+                    // PASSWORD FLOW:
+                    await passwordInput.FillAsync(password);
+                    await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/button").ClickAsync();
+
+                    // Fill YOB
+                    await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/div/div[1]/span[1]/input").FillAsync(yob);
+                    await page.Locator("//*[@id=\"app\"]/div/div[1]/div[2]/div/div[1]/div[2]/form/button").ClickAsync();
+                }
 
                 await page.Locator("//*[@id=\"app\"]/div/header/div/div/div[2]/div/div[1]/div[1]").ClickAsync();
 
@@ -90,7 +228,9 @@ namespace OptionEdge.API.AliceBlue.Smart
 
                 playwright.Dispose();
 
-                return true;
+                _isLoggedIn = true;
+
+                return _isLoggedIn;
             }
             catch (Exception ex)
             {
@@ -98,7 +238,7 @@ namespace OptionEdge.API.AliceBlue.Smart
                     Utils.LogMessage($"Error while login to broker account. {ex.ToString()}");
             }
 
-            return false;
+            return _isLoggedIn;
         }
 
         private void UpdateCntractsMap(string exchange, IList<Contract> contracts)
