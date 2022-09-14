@@ -83,8 +83,9 @@ Refer the sample file `DevTest.cs` within `OptionEdge.API.AliceBlue.Smart.Sample
     var isLoginSuccess = _aliceBlueSmart.Login(
         userName: _userId,
         password: _password,
+        yob: _yob,
         mpin: _mpin,
-        showBrowser: false).Result;
+        showBrowser: true).Result;
 
     if (isLoginSuccess)
         Console.WriteLine("Logged in to ANT Web successfully.");
