@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.0.0.13</AssemblyVersion>
+	<AssemblyVersion>1.0.0.15</AssemblyVersion>
 	<Version>$(VersionPrefix)</Version>
-	<VersionPrefix>1.0.0.13</VersionPrefix>
+	<VersionPrefix>1.0.0.15</VersionPrefix>
 	<VersionSuffix>beta</VersionSuffix>
 	<Company>OptionEdge</Company>
 	<Authors>proftheta</Authors>
@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Playwright" Version="1.25.0" />
-    <PackageReference Include="OptionEdge.API.AliceBlue" Version="1.0.0.13-beta" />
+    <PackageReference Include="OptionEdge.API.AliceBlue" Version="1.0.0.15-beta" />
   </ItemGroup>
 
 
