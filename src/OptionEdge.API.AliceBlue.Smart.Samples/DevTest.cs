@@ -13,7 +13,7 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
         string? _yob = Environment.GetEnvironmentVariable("ALICE_BLUE_YOB");
         string? _mpin = Environment.GetEnvironmentVariable("ALICE_BLUE_MPIN");
 
-        string _tokenFileName = "token.txt";
+        string _tokenFileName = $"token_{DateTime.Now.ToString("dd_MMM_yyyy")}.txt";
 
         AliceBlueSmart? _aliceBlueSmart;
 
