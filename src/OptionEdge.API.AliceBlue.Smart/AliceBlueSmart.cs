@@ -70,7 +70,10 @@ namespace OptionEdge.API.AliceBlue.Smart
         Dictionary<int, LTPResult> _tickStore = new Dictionary<int, LTPResult>();
         public LTPResult GetLTP(string exchange, string tradingSymbol)
         {
-            var instrumentToken = GetInstrument(exchange, tradingSymbol).InstrumentToken;
+            var instrument = GetInstrument(exchange, tradingSymbol);
+            if (instrument == null) return null;
+
+            var instrumentToken = instrument.InstrumentToken;
 
             return GetLTP(exchange, instrumentToken);
         }

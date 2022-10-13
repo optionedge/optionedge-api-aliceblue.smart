@@ -29,23 +29,23 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
                 }
             );
 
-            //Login to ANT Web
-            // set showBrowser as true to see the browser UI else false.No browser instance will be created
-            //Chromium browser needs to be installed at the binary location
-            // .\playwright.ps1 install chromium
-            var isLoginSuccess = _aliceBlueSmart.Login(
-                userName: _userId,
-                password: _password,
-                yob: _yob,
-                mpin: _mpin,
-                showBrowser: true).Result;
+            ////Login to ANT Web
+            //// set showBrowser as true to see the browser UI else false.No browser instance will be created
+            ////Chromium browser needs to be installed at the binary location
+            //// .\playwright.ps1 install chromium
+            //var isLoginSuccess = _aliceBlueSmart.Login(
+            //    userName: _userId,
+            //    password: _password,
+            //    yob: _yob,
+            //    mpin: _mpin,
+            //    showBrowser: true).Result;
 
-            if (isLoginSuccess)
-                Console.WriteLine("Logged in to ANT Web successfully.");
-            else
-            {
-                Console.WriteLine("login to ANT Web failed.");
-            }
+            //if (isLoginSuccess)
+            //    Console.WriteLine("Logged in to ANT Web successfully.");
+            //else
+            //{
+            //    Console.WriteLine("login to ANT Web failed.");
+            //}
 
             // Create Ticker for live feeds
             var ticker = _aliceBlueSmart.CreateTicker();
