@@ -25,7 +25,7 @@ This is an extension library to AliceBlue .Net Client library. This smart extens
 ## Install Nuget Packages
 
 ```
-Install-Package OptionEdge.API.AliceBlue.Smart -Version 1.0.3
+Install-Package OptionEdge.API.AliceBlue.Smart -Version 1.0.4
 ```
 
 ## Sample project
