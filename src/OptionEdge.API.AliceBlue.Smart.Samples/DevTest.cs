@@ -65,30 +65,32 @@ namespace OptionEdge.API.AliceBlue.Smart.Samples
             var symbolGenerator = _aliceBlueSmart.CreateSymbolGenerator();
 
             // Get NIFTY current week's put ATM strike symbol
-            var niftyCurrentWeekATMPut = symbolGenerator.GetSymbol(
-                "NIFTY",
-                allExpiries[0],
-                ALICE_BLUE_API_OPTION_TYPE.PE,
-                symbolGenerator.GetATMStrike(17343, 50));
+            //var niftyCurrentWeekATMPut = symbolGenerator.GetSymbol(
+            //    "NIFTY",
+            //    allExpiries[0],
+            //    ALICE_BLUE_API_OPTION_TYPE.PE,
+            //    symbolGenerator.GetATMStrike(17343, 50));
 
 
-            var bankniftyNextWeekATMCall = symbolGenerator.GetSymbol(
-                "BANKNIFTY",
-                allExpiries[1],
-                ALICE_BLUE_API_OPTION_TYPE.CE,
-                symbolGenerator.GetATMStrike(39856, 100));
+            //var bankniftyNextWeekATMCall = symbolGenerator.GetSymbol(
+            //    "BANKNIFTY",
+            //    allExpiries[1],
+            //    ALICE_BLUE_API_OPTION_TYPE.CE,
+            //    symbolGenerator.GetATMStrike(39856, 100));
 
-            Console.WriteLine(niftyCurrentWeekATMPut);
-            Console.WriteLine(bankniftyNextWeekATMCall);
+            //Console.WriteLine(niftyCurrentWeekATMPut);
+            //Console.WriteLine(bankniftyNextWeekATMCall);
 
             // Test connectivity
             var accountDetails = _aliceBlueSmart.GetAccountDetails();
 
             // Load all contracts for NFO in memory
-            _aliceBlueSmart.LoadContracts(Constants.EXCHANGE_NFO);
+            //_aliceBlueSmart.LoadContracts(Constants.EXCHANGE_NFO);
 
             // get contract by instrument token. 
-            var contract1 = _aliceBlueSmart.GetInstrument(Constants.EXCHANGE_NFO, 51942);
+            //var contract1 = _aliceBlueSmart.GetInstrument(Constants.EXCHANGE_NFO, 51942);
+
+            var os = _aliceBlueSmart.GetOrderHistory("24042300271743");
 
             // get contract by trading symbol
             var contract2 = _aliceBlueSmart.GetInstrument(Constants.EXCHANGE_NFO, "symbol");
