@@ -158,14 +158,12 @@ namespace OptionEdge.API.AliceBlue.Smart
 
         private void _ticker_OnTick(Tick TickData)
         {
-            if (_tickStore.ContainsKey(TickData.Token.Value))
+            if (_tickStore.ContainsKey(Convert.ToInt32( TickData.Token)))
             {
-                var ltpResult = _tickStore[TickData.Token.Value];
-                ltpResult.LastTradedPrice = TickData.LastTradedPrice.Value;
+                var ltpResult = _tickStore[Convert.ToInt32(TickData.Token)];
+                ltpResult.LastTradedPrice = TickData.LastTradedPrice;
                 ltpResult.BuyPrice1 = TickData.BuyPrice1;
                 ltpResult.SellPrice1 = TickData.SellPrice1;
-                ltpResult.BuyQty1 = TickData.BuyQty1;
-                ltpResult.SellQty1= TickData.SellQty1;
             }
         }
 

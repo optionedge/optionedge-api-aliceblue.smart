@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="OptionEdge.API.AliceBlue" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\OptionEdge.API.AliceBlue.Smart\OptionEdge.API.AliceBlue.Smart.csproj" />
   </ItemGroup>
 

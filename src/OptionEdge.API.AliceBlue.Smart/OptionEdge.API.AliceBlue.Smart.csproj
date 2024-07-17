@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-	<AssemblyVersion>1.0.6</AssemblyVersion>
+	<AssemblyVersion>2.0.0</AssemblyVersion>
 	<Version>$(VersionPrefix)</Version>
-	<VersionPrefix>1.0.6</VersionPrefix>
+	<VersionPrefix>2.0.0</VersionPrefix>
 	<VersionSuffix></VersionSuffix>
 	<Company>OptionEdge</Company>
 	<Authors>proftheta</Authors>
@@ -14,6 +14,7 @@
 	<PackageProjectUrl>https://github.com/proftheta/optionedge-api-aliceblue.smart</PackageProjectUrl>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<RepositoryUrl>https://github.com/proftheta/optionedge-api-aliceblue.smart</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,15 +22,12 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+    <None Include="licenses\LICENSE.txt" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Playwright" Version="1.25.0" />
-    <!--<PackageReference Include="OptionEdge.API.AliceBlue" Version="1.0.6" />-->
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\optionedge-api-aliceblue\src\OptionEdge.API.AliceBlue\OptionEdge.API.AliceBlue.csproj" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.45.0" />
+    <PackageReference Include="OptionEdge.API.AliceBlue" Version="2.0.0" />
   </ItemGroup>
 
 
